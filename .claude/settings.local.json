@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"E:/humanoid-robotics-book/specs/001-physical-ai-book\" -name \"*.md\" -exec grep -l \"\\[.\\]\" {} ;)",
+      "Bash(dir docs /s)",
+      "Bash(ls -la docs/*)",
+      "Bash(findstr /n \"<[0-9]\" \"E:\\humanoid-robotics-book\\docs\\hardware\\workstation-specifications\\01-workstation-specifications.md\")",
+      "Bash(npm run build)"
+    ]
+  }
+}
