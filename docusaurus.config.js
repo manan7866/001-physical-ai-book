@@ -54,6 +54,9 @@ const config = {
     ],
   ],
 
+
+
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
@@ -70,6 +73,16 @@ const config = {
             to: '/docs',
             position: 'left',
             label: 'Book',
+          },
+          {
+            type: 'html',
+            position: 'right',
+            value: '<div id="search-icon-placeholder" style="cursor: pointer; padding: 8px; display: flex; align-items: center; height: 24px;" title="Search (Ctrl+K)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="currentColor" stroke-width="2"/><path d="M22 22L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>',
+          },
+          {
+            type: 'html',
+            position: 'right',
+            value: '<div id="auth-navbar-placeholder" style="cursor: pointer; padding: 8px; display: flex; align-items: center; height: 24px;"><a href="/auth" style="padding: 6px 12px; background-color: #007cba; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Sign In</a></div>',
           },
           {
             href: 'https://github.com/facebook/docusaurus',

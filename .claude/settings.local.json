@@ -5,7 +5,9 @@
       "Bash(dir docs /s)",
       "Bash(ls -la docs/*)",
       "Bash(findstr /n \"<[0-9]\" \"E:\\humanoid-robotics-book\\docs\\hardware\\workstation-specifications\\01-workstation-specifications.md\")",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(python -c \"from qdrant_rag import QdrantRAGClient; client = QdrantRAGClient(); result = client.search(''humanoid robotics''); print(''Qdrant search works! Found'', len(result), ''results'')\")",
+      "Bash(python test_system.py)"
     ]
   }
 }

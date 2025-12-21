@@ -11,20 +11,32 @@
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids"
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "auth-server": "node auth-server.js",
+    "backend": "cd backend/backend && python -c \"import os; os.chdir('E:/humanoid-robotics-book/backend/backend'); import sys; sys.path.insert(0, '.'); from main import app; import uvicorn; uvicorn.run(app, host='127.0.0.1', port=8009, log_level='info')\"",
+    "dev": "concurrently \"npm run start\" \"npm run auth-server\"",
+    "dev-full": "concurrently \"npm run start\" \"npm run auth-server\" \"npm run backend\"",
+    "dev-proxy": "REACT_APP_API_BASE_URL=http://localhost:8009 concurrently \"npm run start\" \"npm run auth-server\" \"npm run backend\""
   },
   "dependencies": {
     "@docusaurus/core": "3.1.0",
     "@docusaurus/preset-classic": "3.1.0",
     "@mdx-js/react": "^3.0.0",
+    "better-auth": "^1.4.7",
+    "better-sqlite3": "^12.5.0",
     "clsx": "^2.0.0",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "prism-react-renderer": "^2.3.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.1.0",
-    "@docusaurus/types": "3.1.0"
+    "@docusaurus/types": "3.1.0",
+    "concurrently": "^9.2.1"
   },
   "browserslist": {
     "production": [

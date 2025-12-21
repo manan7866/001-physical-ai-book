@@ -10,6 +10,16 @@ const sidebars = {
     },
     {
       type: 'doc',
+      id: 'getting-started',
+      label: 'Getting Started'
+    },
+    {
+      type: 'doc',
+      id: 'course-schedule',
+      label: 'Course Schedule (12 Weeks)'
+    },
+    {
+      type: 'doc',
       id: 'preface',
       label: 'Preface'
     },
@@ -25,13 +35,8 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Introduction',
+      label: 'Week 1: Foundations of Physical AI',
       items: [
-        {
-          type: 'doc',
-          id: 'introduction/index',
-          label: 'Introduction Overview'
-        },
         {
           type: 'doc',
           id: 'introduction/foundations/foundations-of-physical-ai',
@@ -51,13 +56,8 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Module 1: ROS 2',
+      label: 'Week 2: ROS 2 Fundamentals - Part 1',
       items: [
-        {
-          type: 'doc',
-          id: 'module1-ros2/index',
-          label: 'Module 1 Overview'
-        },
         {
           type: 'doc',
           id: 'module1-ros2/nodes-topics-services/ros2-nodes-topics-services',
@@ -67,7 +67,13 @@ const sidebars = {
           type: 'doc',
           id: 'module1-ros2/urdf-modeling/urdf-modeling',
           label: 'URDF Modeling and Robot Description'
-        },
+        }
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Week 3: ROS 2 Development - Part 2',
+      items: [
         {
           type: 'doc',
           id: 'module1-ros2/rclpy-programming/programming-with-rclpy',
@@ -82,13 +88,8 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Module 2: Digital Twin',
+      label: 'Week 4: Digital Twin Concepts & Simulation Fundamentals',
       items: [
-        {
-          type: 'doc',
-          id: 'module2-digital-twin/index',
-          label: 'Module 2 Overview'
-        },
         {
           type: 'doc',
           id: 'module2-digital-twin/digital-twin-concepts/digital-twin-concepts',
@@ -103,7 +104,13 @@ const sidebars = {
           type: 'doc',
           id: 'module2-digital-twin/gazebo-simulation/advanced-gazebo-features',
           label: 'Advanced Gazebo Features'
-        },
+        }
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Week 5: Physics Engines & Unity Integration',
+      items: [
         {
           type: 'doc',
           id: 'module2-digital-twin/physics-engines/physics-engines',
@@ -118,13 +125,8 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Module 3: Isaac AI Platform',
+      label: 'Week 6: Isaac AI Platform Introduction',
       items: [
-        {
-          type: 'doc',
-          id: 'module3-isaac/index',
-          label: 'Module 3 Overview'
-        },
         {
           type: 'doc',
           id: 'module3-isaac/isaac-ros/isaac-ros',
@@ -139,7 +141,13 @@ const sidebars = {
           type: 'doc',
           id: 'module3-isaac/isaac-sim/advanced-isaac-sim-features',
           label: 'Advanced Isaac Sim Features'
-        },
+        }
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Week 7: Perception Systems & VSLAM Navigation',
+      items: [
         {
           type: 'doc',
           id: 'module3-isaac/perception-systems/perception-systems',
@@ -154,13 +162,8 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Module 4: Vision-Language-Action (VLA)',
+      label: 'Week 8: Vision-Language Models for Robotics',
       items: [
-        {
-          type: 'doc',
-          id: 'module4-vla/index',
-          label: 'Module 4 Overview'
-        },
         {
           type: 'doc',
           id: 'module4-vla/vision-language-models/vision-language-models-robotics',
@@ -170,16 +173,17 @@ const sidebars = {
           type: 'doc',
           id: 'module4-vla/vision-language-models/practical-vla-implementation',
           label: 'Practical VLA Implementation'
-        },
+        }
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Week 9: Action Planning & Multimodal Integration',
+      items: [
         {
           type: 'doc',
           id: 'module4-vla/action-planning/action-planning',
           label: 'Action Planning'
-        },
-        {
-          type: 'doc',
-          id: 'module4-vla/conversational-robotics/conversational-robotics',
-          label: 'Conversational Robotics'
         },
         {
           type: 'doc',
@@ -190,49 +194,19 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'Capstone Project',
+      label: 'Week 10: Conversational Robotics',
       items: [
         {
           type: 'doc',
-          id: 'capstone/index',
-          label: 'Capstone Overview'
-        },
-        {
-          type: 'doc',
-          id: 'capstone/project-specification/capstone-project-specification',
-          label: 'Capstone Project Specification (01)'
-        },
-        {
-          type: 'doc',
-          id: 'capstone/project-specification/capstone-specification-framework',
-          label: 'Project Specification Framework (02)'
-        },
-        {
-          type: 'doc',
-          id: 'capstone/implementation-guide/implementation-guide',
-          label: 'Implementation Guide'
-        },
-        {
-          type: 'doc',
-          id: 'capstone/evaluation-criteria/evaluation-criteria',
-          label: 'Evaluation Criteria'
-        },
-        {
-          type: 'doc',
-          id: 'capstone/deployment-strategies/deployment-strategies',
-          label: 'Deployment Strategies'
+          id: 'module4-vla/conversational-robotics/conversational-robotics',
+          label: 'Conversational Robotics'
         }
       ]
     },
     {
       type: 'category',
-      label: 'Hardware & Infrastructure',
+      label: 'Week 11: Hardware & Infrastructure',
       items: [
-        {
-          type: 'doc',
-          id: 'hardware/index',
-          label: 'Hardware Overview'
-        },
         {
           type: 'doc',
           id: 'hardware/workstation-specifications/workstation-specifications',
@@ -256,6 +230,37 @@ const sidebars = {
       ]
     },
     {
+      type: 'category',
+      label: 'Week 12: Capstone Project',
+      items: [
+        {
+          type: 'doc',
+          id: 'capstone/project-specification/capstone-project-specification',
+          label: 'Capstone Project Specification'
+        },
+        {
+          type: 'doc',
+          id: 'capstone/project-specification/capstone-specification-framework',
+          label: 'Project Specification Framework'
+        },
+        {
+          type: 'doc',
+          id: 'capstone/implementation-guide/implementation-guide',
+          label: 'Implementation Guide'
+        },
+        {
+          type: 'doc',
+          id: 'capstone/evaluation-criteria/evaluation-criteria',
+          label: 'Evaluation Criteria'
+        },
+        {
+          type: 'doc',
+          id: 'capstone/deployment-strategies/deployment-strategies',
+          label: 'Deployment Strategies'
+        }
+      ]
+    },
+    {
       type: 'doc',
       id: 'contributing',
       label: 'Contribution Guidelines'
@@ -272,6 +277,11 @@ const sidebars = {
     },
     {
       type: 'doc',
+      id: 'personalization-demo',
+      label: 'Content Personalization Demo'
+    },
+    {
+      type: 'doc',
       id: 'glossary/glossary',
       label: 'Glossary of Terms'
     },
@@ -279,6 +289,48 @@ const sidebars = {
       type: 'doc',
       id: 'templates/chapter-template',
       label: 'Chapter Template'
+    },
+    {
+      type: 'category',
+      label: 'Resources',
+      items: [
+        {
+          type: 'doc',
+          id: 'examples/index',
+          label: 'Code Examples'
+        },
+        {
+          type: 'doc',
+          id: 'tutorials/index',
+          label: 'Video Tutorials'
+        },
+        {
+          type: 'doc',
+          id: 'community/index',
+          label: 'Community Forum'
+        }
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Demos & Simulations',
+      items: [
+        {
+          type: 'doc',
+          id: 'demos/walking-simulation',
+          label: 'Walking Gait Control'
+        },
+        {
+          type: 'doc',
+          id: 'demos/manipulation',
+          label: 'Object Manipulation'
+        },
+        {
+          type: 'doc',
+          id: 'demos/hri',
+          label: 'Human-Robot Interaction'
+        }
+      ]
     }
   ],
 };
