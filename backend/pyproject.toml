@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rag-chatbot-physical-ai"
+version = "0.1.0"
+description = "RAG Chatbot for Physical AI & Humanoid Robotics Documentation"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.124.4",
+    "openai-agents>=0.6.3",
+    "python-dotenv>=1.2.1",
+    "qdrant-client>=1.12.0",
+    "sentence-transformers>=3.0.1",
+    "torch>=2.0.0",
+]
+
+[tool.setuptools]
+py-modules = ["connection", "main", "qdrant_rag", "test_qdrant"]

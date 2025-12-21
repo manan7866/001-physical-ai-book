@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - QDRANT_URL=${QDRANT_URL:-https://e96649f2-a409-4283-9883-23a2ac6a014e.us-east4-0.gcp.cloud.qdrant.io:6333}
+      - QDRANT_API_KEY=${QDRANT_API_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.0xMam28esMmQuvWx7fQjElLEiFb9MA3Fn-wfSqa9GCc}
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-humanoid_robotics_docs}
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL:-http://localhost:8000}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  db-data:
