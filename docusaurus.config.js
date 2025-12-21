@@ -138,6 +138,11 @@ const config = {
         additionalLanguages: ['python', 'bash', 'json', 'yaml'],
       },
     }),
+
+  // Client modules to inject environment variables
+  clientModules: [
+    require.resolve('./src/client-modules/global-variables.js'),
+  ],
 };
 
 export default config;

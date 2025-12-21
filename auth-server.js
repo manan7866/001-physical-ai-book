@@ -7,8 +7,36 @@ const app = express();
 const PORT = process.env.AUTH_PORT || 8080;
 
 // Enable CORS for communication with Docusaurus frontend
+// Allow multiple origins for both development and production
+const allowedOrigins = process.env.FRONTEND_URL ?
+  [process.env.FRONTEND_URL] :
+  [
+    'http://localhost:3000',  // Docusaurus default
+    'http://localhost:3001',  // Alternative Docusaurus port
+    'http://127.0.0.1:3000',  // Alternative localhost
+    'http://127.0.0.1:3001',  // Alternative localhost
+    'http://localhost:5000',  // Alternative development
+    'http://127.0.0.1:5000',  // Alternative development
+    'http://localhost:80',     // Production build on localhost
+    'http://127.0.0.1:80',     // Production build on localhost
+    'http://localhost',        // Production build on localhost
+    'http://127.0.0.1'         // Production build on localhost
+  ];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1 ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:')) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -392,15 +420,31 @@ app.post('/api/profile', (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', service: 'Simplified Auth Server' });
+  res.json({ status: 'OK', service: 'Simplified Auth Server', port: PORT });
 });
 
 // Start the server
-app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Full Auth server running on port ${PORT}`);
   console.log(`API endpoints available:`);
   console.log(`- Auth API: http://localhost:${PORT}/api/auth`);
   console.log(`- Profile API: http://localhost:${PORT}/api/profile`);
+  console.log(`- Health check: http://localhost:${PORT}/health`);
+});
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    console.log('Process terminated');
+  });
 });
 
 module.exports = app;

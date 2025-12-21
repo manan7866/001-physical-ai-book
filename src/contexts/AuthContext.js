@@ -17,7 +17,7 @@ const createCustomAuthClient = () => {
                     window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443';
 
       if (isDev) {
-        return 'http://localhost:8080';
+        return 'http://localhost:8080'; // Auth server runs on port 8080
       } else {
         return ''; // Use relative path (same host as frontend) in production
       }
@@ -244,7 +244,7 @@ export const AuthProvider = ({ children }) => {
                         window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443';
 
           if (isDev) {
-            return 'http://localhost:8080';
+            return 'http://localhost:8080'; // Auth server runs on port 8080
           } else {
             return ''; // Use relative path (same host as frontend) in production
           }
@@ -254,7 +254,19 @@ export const AuthProvider = ({ children }) => {
       };
 
       const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/profile?userId=${userId}`, {
+      // Use the same API URL pattern as other services
+      let apiUrl = baseUrl;
+      if (baseUrl && !baseUrl.startsWith('http')) {
+        // If it's a relative path, use it as-is
+        apiUrl = baseUrl;
+      } else if (baseUrl && baseUrl.startsWith('http')) {
+        // If it's an absolute URL, append /api
+        apiUrl = baseUrl.endsWith('/') ? baseUrl + 'api' : baseUrl + '/api';
+      } else {
+        // Default to /api for relative path
+        apiUrl = '/api';
+      }
+      const response = await fetch(`${apiUrl}/profile?userId=${userId}`, {
         credentials: 'include',
       });
 
@@ -314,7 +326,7 @@ export const AuthProvider = ({ children }) => {
                         window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443';
 
           if (isDev) {
-            return 'http://localhost:8080';
+            return 'http://localhost:8080'; // Auth server runs on port 8080
           } else {
             return ''; // Use relative path (same host as frontend) in production
           }
@@ -324,7 +336,19 @@ export const AuthProvider = ({ children }) => {
       };
 
       const baseUrl = getBaseUrl();
-      const response = await fetch(`${baseUrl}/api/profile`, {
+      // Use the same API URL pattern as other services
+      let apiUrl = baseUrl;
+      if (baseUrl && !baseUrl.startsWith('http')) {
+        // If it's a relative path, use it as-is
+        apiUrl = baseUrl;
+      } else if (baseUrl && baseUrl.startsWith('http')) {
+        // If it's an absolute URL, append /api
+        apiUrl = baseUrl.endsWith('/') ? baseUrl + 'api' : baseUrl + '/api';
+      } else {
+        // Default to /api for relative path
+        apiUrl = '/api';
+      }
+      const response = await fetch(`${apiUrl}/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

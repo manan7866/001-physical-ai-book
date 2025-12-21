@@ -98,7 +98,7 @@ This comprehensive course is designed to take students from foundational concept
 
 ## Course Resources
 - [Setup Guide](./setup-guide) - Configure your development environment
-- [Glossary of Terms](./glossary/glossary) - Technical term definitions
+- [Glossary of Terms](./glossary/glossary.md) - Technical term definitions
 - [Troubleshooting Guide](./troubleshooting) - Common issues and solutions
 - [Contribution Guidelines](./contributing) - How to contribute to the book
 

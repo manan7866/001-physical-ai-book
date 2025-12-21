@@ -56,8 +56,19 @@ const PersonalizeButton = ({ children, contentKey }) => {
       };
 
       const baseUrl = getBaseUrl();
-
-      const response = await fetch(`${baseUrl}/api/profile?userId=${user.id}&t=${cacheBuster}`, {
+      // Use the same API URL pattern as other services
+      let apiUrl = baseUrl;
+      if (baseUrl && !baseUrl.startsWith('http')) {
+        // If it's a relative path, use it as-is
+        apiUrl = baseUrl;
+      } else if (baseUrl && baseUrl.startsWith('http')) {
+        // If it's an absolute URL, append /api
+        apiUrl = baseUrl.endsWith('/') ? baseUrl + 'api' : baseUrl + '/api';
+      } else {
+        // Default to /api for relative path
+        apiUrl = '/api';
+      }
+      const response = await fetch(`${apiUrl}/profile?userId=${user.id}&t=${cacheBuster}`, {
         method: 'GET',
         credentials: 'include',
         headers: {

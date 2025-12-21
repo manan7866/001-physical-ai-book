@@ -5,9 +5,10 @@
 const getRagChatbotApiUrl = () => {
   // Check if we're in a browser environment
   if (typeof window !== 'undefined') {
-    // You can set window.RAG_CHATBOT_API_URL from your Docusaurus config if needed
-    if (window.RAG_CHATBOT_API_URL) {
-      return window.RAG_CHATBOT_API_URL;
+    // Check for a global RAG API URL first (set via Docusaurus config)
+    if (window.RAG_API_URL && window.RAG_API_URL.trim() !== '') {
+      // If RAG_API_URL is set and not empty, append /api to it
+      return window.RAG_API_URL.endsWith('/') ? window.RAG_API_URL + 'api' : window.RAG_API_URL + '/api';
     }
 
     // For development, use the backend server URL
@@ -17,7 +18,7 @@ const getRagChatbotApiUrl = () => {
                   window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443';
 
     if (isDev) {
-      return 'http://localhost:8000/api';
+      return 'http://127.0.0.1:8000/api'; // Use backend server in development (port 8000)
     } else {
       return '/api'; // Use relative path (same host as frontend) in production
     }
