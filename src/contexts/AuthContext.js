@@ -388,8 +388,30 @@ export const AuthProvider = ({ children }) => {
     try {
       const baseURL = getBaseURL();
 
-      // In production, if there's no auth server, skip profile loading
+      // In production, if there's no auth server, load profile from localStorage
       if (!baseURL) {
+        // Load profile data from localStorage where it was stored during signup/profile update
+        const storedSession = localStorage.getItem('better-auth-session');
+        if (storedSession) {
+          try {
+            const sessionData = JSON.parse(storedSession);
+            const extendedProfileData = sessionData?.extendedProfile || sessionData?.user?.extendedProfile;
+
+            if (extendedProfileData) {
+              setExtendedProfile(extendedProfileData);
+              // Update user object to include extended fields and extendedProfile
+              setUser(prevUser => ({
+                ...prevUser,
+                fullName: extendedProfileData.full_name,
+                softwareBackground: extendedProfileData.software_background,
+                hardwareBackground: extendedProfileData.hardware_background,
+                extendedProfile: extendedProfileData
+              }));
+            }
+          } catch (parseError) {
+            console.error('Error parsing stored session data:', parseError);
+          }
+        }
         return;
       }
 
@@ -453,7 +475,7 @@ export const AuthProvider = ({ children }) => {
 
       const baseUrl = getBaseURL();
 
-      // In production, if there's no auth server, skip profile update
+      // In production, if there's no auth server, update profile in localStorage
       if (!baseUrl) {
         // Simulate successful profile update in localStorage for production
         const extendedProfileData = {
@@ -473,6 +495,30 @@ export const AuthProvider = ({ children }) => {
           hardwareBackground: extendedProfileData.hardware_background,
           extendedProfile: extendedProfileData
         }));
+
+        // Also update the stored session in localStorage to include extended profile data
+        // so loadExtendedProfile can find it later
+        try {
+          const storedSession = localStorage.getItem('better-auth-session');
+          if (storedSession) {
+            const sessionData = JSON.parse(storedSession);
+            // Update the session data with extended profile information
+            const updatedSessionData = {
+              ...sessionData,
+              extendedProfile: extendedProfileData,
+              user: {
+                ...sessionData.user,
+                extendedProfile: extendedProfileData,
+                fullName: extendedProfileData.full_name,
+                softwareBackground: extendedProfileData.software_background,
+                hardwareBackground: extendedProfileData.hardware_background
+              }
+            };
+            localStorage.setItem('better-auth-session', JSON.stringify(updatedSessionData));
+          }
+        } catch (storageError) {
+          console.error('Error updating stored session data:', storageError);
+        }
 
         console.log('Extended profile updated successfully (simulated):', extendedProfileData);
         return { success: true, data: extendedProfileData };
