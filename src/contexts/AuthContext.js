@@ -65,6 +65,38 @@ const createCustomAuthClient = () => {
           return result;
         }
 
+        // Safety check: ensure we never make a request if baseURL is null
+        if (!baseURL) {
+          // This should not be reached if the first condition worked properly
+          // But as a safety measure, return a simulated response
+          const simulatedUser = {
+            id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            email,
+            name,
+            emailVerified: false
+          };
+
+          const simulatedSession = {
+            token: `token_${Math.random().toString(36).substr(2, 16)}`,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          };
+
+          const result = {
+            session: simulatedSession,
+            user: simulatedUser
+          };
+
+          // Store session in localStorage to mimic Better Auth behavior
+          const sessionData = {
+            session: simulatedSession,
+            user: simulatedUser,
+            timestamp: Date.now()
+          };
+          localStorage.setItem('better-auth-session', JSON.stringify(sessionData));
+
+          return result;
+        }
+
         const response = await fetch(`${baseURL}/api/auth/sign-up`, {
           method: 'POST',
           headers: {
@@ -101,6 +133,38 @@ const createCustomAuthClient = () => {
         // In production, if there's no auth server, we'll simulate a basic auth flow
         if (!baseURL) {
           // Simulate successful sign in in production (no real auth server)
+          const simulatedUser = {
+            id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            email,
+            name: email.split('@')[0], // Use part of email as name
+            emailVerified: false
+          };
+
+          const simulatedSession = {
+            token: `token_${Math.random().toString(36).substr(2, 16)}`,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          };
+
+          const result = {
+            session: simulatedSession,
+            user: simulatedUser
+          };
+
+          // Store session in localStorage to mimic Better Auth behavior
+          const sessionData = {
+            session: simulatedSession,
+            user: simulatedUser,
+            timestamp: Date.now()
+          };
+          localStorage.setItem('better-auth-session', JSON.stringify(sessionData));
+
+          return result;
+        }
+
+        // Safety check: ensure we never make a request if baseURL is null
+        if (!baseURL) {
+          // This should not be reached if the first condition worked properly
+          // But as a safety measure, return a simulated response
           const simulatedUser = {
             id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
             email,
@@ -169,6 +233,14 @@ const createCustomAuthClient = () => {
           return { success: true };
         }
 
+        // Safety check: ensure we never make a request if baseURL is null
+        if (!baseURL) {
+          // This should not be reached if the first condition worked properly
+          // But as a safety measure, just clear local storage and return success
+          localStorage.removeItem('better-auth-session');
+          return { success: true };
+        }
+
         const response = await fetch(`${baseURL}/api/auth/sign-out`, {
           method: 'POST',
           credentials: 'include',
@@ -208,6 +280,13 @@ const createCustomAuthClient = () => {
 
         // In production, if there's no auth server, return null since we can't verify session
         if (!baseURL) {
+          return null;
+        }
+
+        // Safety check: ensure we never make a request if baseURL is null
+        if (!baseURL) {
+          // This should not be reached if the first condition worked properly
+          // But as a safety measure, return null
           return null;
         }
 
