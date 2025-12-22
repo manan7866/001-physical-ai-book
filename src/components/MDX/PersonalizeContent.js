@@ -6,7 +6,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import adaptiveTextbookService from '../../services/adaptiveTextbookService';
 
 const PersonalizeContent = ({ children, title = "Chapter" }) => {
-  const { user, isAuthenticated, refreshUser } = useAuthContext();
+  const { user, isAuthenticated, refreshUser, extendedProfile } = useAuthContext();
   const [isPersonalized, setIsPersonalized] = useState(false);
   const [personalizedContent, setPersonalizedContent] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -14,79 +14,26 @@ const PersonalizeContent = ({ children, title = "Chapter" }) => {
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
 
-  // Function to load profile data directly
+  // Function to load profile data from AuthContext
   const loadProfileData = async () => {
-    if (!isAuthenticated || !user?.id) {
+    if (!isAuthenticated) {
       setProfileData(null);
       return;
     }
 
     setProfileLoading(true);
-    try {
-      // Make a direct API call to the auth server to get profile data
-      // Add cache busting to ensure we get fresh data
-      const cacheBuster = new Date().getTime();
-      const getBaseUrl = () => {
-        if (typeof window !== 'undefined') {
-          // Check for environment variable first
-          if (window.AUTH_API_URL) {
-            return window.AUTH_API_URL;
-          }
 
-          // For development, use the backend server URL
-          // For production, use relative path to same host
-          const isDev = window.location.hostname === 'localhost' ||
-                        window.location.hostname === '127.0.0.1' ||
-                        window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443';
-
-          if (isDev) {
-            return 'http://localhost:8080';
-          } else {
-            return ''; // Use relative path (same host as frontend) in production
-          }
-        }
-        // For server-side rendering in production, use relative path
-        return '';
-      };
-
-      const baseUrl = getBaseUrl();
-      // Use the same API URL pattern as other services
-      let apiUrl = baseUrl;
-      if (baseUrl && !baseUrl.startsWith('http')) {
-        // If it's a relative path, use it as-is
-        apiUrl = baseUrl;
-      } else if (baseUrl && baseUrl.startsWith('http')) {
-        // If it's an absolute URL, append /api
-        apiUrl = baseUrl.endsWith('/') ? baseUrl + 'api' : baseUrl + '/api';
-      } else {
-        // Default to /api for relative path
-        apiUrl = '/api';
-      }
-      const response = await fetch(`${apiUrl}/profile?userId=${user.id}&t=${cacheBuster}`, {
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          setProfileData(result.data);
-        } else {
-          setProfileData(null);
-        }
-      } else {
-        setProfileData(null);
-      }
-    } catch (error) {
-      console.error('Error loading profile data:', error);
+    // Use the extended profile data from AuthContext directly
+    // This data is already loaded by the AuthContext
+    if (extendedProfile) {
+      setProfileData(extendedProfile);
+    } else if (user?.extendedProfile) {
+      setProfileData(user.extendedProfile);
+    } else {
       setProfileData(null);
-    } finally {
-      setProfileLoading(false);
     }
+
+    setProfileLoading(false);
   };
 
   // Load profile data when component mounts or when user changes
