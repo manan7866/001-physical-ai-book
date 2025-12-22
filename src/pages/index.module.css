@@ -95,10 +95,14 @@
 
 .hero-buttons {
   display: flex;
-  gap: 1.5rem;
+  gap: 2rem; /* Increased gap for better spacing */
   justify-content: flex-start;
   flex-wrap: wrap;
-  
+}
+
+/* Additional styling to ensure proper spacing between the buttons */
+.hero-buttons .button {
+  margin: 0;
 }
 
 @media screen and (max-width: 996px) {
@@ -402,7 +406,7 @@
   background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #c084fc 100%);
   position: relative;
   overflow: hidden;
-  margin-bottom: 10rem;
+  margin-bottom: 2rem; /* Reduced margin to remove empty gap before footer */
 }
 
 .newsletter::before {
@@ -870,8 +874,8 @@ section {
 
 /* Footer spacing - reduced significantly */
 footer {
-  margin-top: 2rem !important;
-  padding-top: 3rem !important;
+  margin-top: 0 !important;
+  padding-top: 2rem !important;
   background: linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #6d28d9 100%);
   color: white;
 }
