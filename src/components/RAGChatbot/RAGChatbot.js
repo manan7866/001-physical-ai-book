@@ -41,25 +41,13 @@ const RAGChatbot = () => {
         return window.RAG_API_URL;
       }
 
-      // For development, use the backend server URL
-      // In Docusaurus, we'll use a simple approach to detect development vs production
-      // by checking if we're running on localhost or a development server
-      const isDev = window.location.hostname === 'localhost' ||
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.port !== '' && window.location.port !== '80' && window.location.port !== '443';
-
-      if (isDev) {
-        return 'http://127.0.0.1:8000'; // Use backend server in development (port 8000 for the rag-chatbot backend)
-      } else {
-        // For production, use a global variable that can be set via environment or build process
-        // This allows for separate backend deployment where the backend URL is configured
-        const globalApiUrl = typeof window !== 'undefined' && window.RAG_API_URL ? window.RAG_API_URL : '';
-        return globalApiUrl || ''; // Use relative path (same host as frontend) in production
-      }
+      // For both development and production, use the deployed Hugging Face backend
+      // CORS is configured to allow requests from specified origins including localhost and deployed frontend
+      return 'https://abdulmanan04-fastapi-chatbot.hf.space';
     }
 
-    // Fallback to development server URL
-    return 'http://127.0.0.1:8000'; // Default to backend server (port 8000)
+    // Fallback to Hugging Face deployment
+    return 'https://abdulmanan04-fastapi-chatbot.hf.space';
   };
 
   const sendMessage = async () => {

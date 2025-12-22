@@ -19,6 +19,7 @@
   if (typeof window !== 'undefined') {
     // RAG API URL - defaults to empty string (relative path) for same-host deployment
     // Can be overridden during build with environment variables
+    // For production deployment, defaults to the Hugging Face deployment URL
     window.RAG_API_URL = typeof window.RAG_API_URL !== 'undefined' ? window.RAG_API_URL : '';
 
     // AUTH API URL - defaults to empty string (relative path) for same-host deployment

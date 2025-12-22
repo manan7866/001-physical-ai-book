@@ -20,17 +20,22 @@ const allowedOrigins = process.env.FRONTEND_URL ?
     'http://localhost:80',     // Production build on localhost
     'http://127.0.0.1:80',     // Production build on localhost
     'http://localhost',        // Production build on localhost
-    'http://127.0.0.1'         // Production build on localhost
-  ];
+    'http://127.0.0.1',        // Production build on localhost
+    'https://abdulmanan04-fastapi-chatbot.hf.space',  // Hugging Face deployment
+    'https://*.hf.space',  // Allow any Hugging Face space subdomain
+    process.env.HF_SPACE_URL || ''  // Allow Hugging Face space URL if provided
+  ].filter(origin => origin !== '');  // Remove empty strings
 
 app.use(cors({
   origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1 ||
+    if (allowedOrigins.some(allowedOrigin =>
+        allowedOrigin === origin ||
+        (allowedOrigin.includes('*') && origin.startsWith(allowedOrigin.replace('*', ''))) ||
         origin.startsWith('http://localhost:') ||
-        origin.startsWith('http://127.0.0.1:')) {
+        origin.startsWith('http://127.0.0.1:'))) {
       callback(null, true);
     } else {
       console.log('CORS blocked:', origin);
@@ -413,10 +418,12 @@ app.post('/api/profile', (req, res) => {
         preferredLanguage
       }
     });
-  });
 
-  stmt.finalize();
+    // Finalize the statement inside the callback
+    stmt.finalize();
+  });
 });
+
 
 // Health check endpoint
 app.get('/health', (req, res) => {
