@@ -93,6 +93,11 @@
   font-weight: 300;
 }
 
+.ss{
+  
+  margin-left: 1rem;
+}
+
 .hero-buttons {
   display: flex;
   gap: 2rem; /* Increased gap for better spacing */
@@ -168,6 +173,7 @@
   padding: 6rem 0;
   background: linear-gradient(to bottom, #f5f3ff 0%, #fdf2ff 100%);
   position: relative;
+  
 }
 
 .modulesSection::before {
@@ -429,6 +435,7 @@
   margin: 0 auto;
   position: relative;
   z-index: 2;
+  
 }
 
 @media screen and (max-width: 996px) {
@@ -516,6 +523,7 @@
   border: none;
   position: relative;
   overflow: hidden;
+  
 }
 
 .module-card::before {
@@ -666,6 +674,7 @@ p {
   margin: 12rem 0;
   position: relative;
   border: none;
+  
 }
 
 .section-divider::before {
@@ -730,6 +739,7 @@ h2::after {
   line-height: 1.9 !important;
   font-weight: 300 !important;
   padding: 0 2rem;
+  
 }
 
 /* Enhanced card spacing */
@@ -737,6 +747,7 @@ h2::after {
   padding: 4rem;
   margin: 2rem;
   transition: transform 0.4s ease;
+  
 }
 
 /* Row spacing */
@@ -859,12 +870,14 @@ section {
 /* Enhanced module card spacing */
 .module-card {
   margin: 2rem !important;
+  
 }
 
 /* Enhanced demo card spacing */
 .demo-card {
   margin: 2rem !important;
   min-height: 500px;
+  
 }
 
 /* Enhanced demo card image */

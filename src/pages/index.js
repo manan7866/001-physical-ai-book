@@ -45,6 +45,7 @@ function EnhancedHero() {
                 to="/docs/introduction">
                 Start Learning - 5min ⏱️
               </Link>
+              <span className={styles.ss}></span>
               <Link
                 className="button button--primary button--lg"
                 to="/docs/getting-started">
