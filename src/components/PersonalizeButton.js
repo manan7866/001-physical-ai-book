@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import adaptiveTextbookService from '../services/adaptiveTextbookService';
+import userPreferencesService from '../services/userPreferencesService';
 
 const PersonalizeButton = ({ children, contentKey }) => {
   const { user, isAuthenticated, refreshUser, extendedProfile } = useAuthContext();
@@ -13,24 +14,40 @@ const PersonalizeButton = ({ children, contentKey }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('English');
 
   // Function to load profile data from AuthContext
   const loadProfileData = async () => {
     if (!isAuthenticated) {
       setProfileData(null);
+      setCurrentLanguage('English');
       return;
     }
 
     setProfileLoading(true);
 
-    // Use the extended profile data from AuthContext directly
-    // This data is already loaded by the AuthContext
-    if (extendedProfile) {
-      setProfileData(extendedProfile);
-    } else if (user?.extendedProfile) {
-      setProfileData(user.extendedProfile);
-    } else {
+    try {
+      // Use the extended profile data from AuthContext directly
+      // This data is already loaded by the AuthContext
+      if (extendedProfile) {
+        setProfileData(extendedProfile);
+        const userPreferredLanguage = extendedProfile.preferredLanguage || extendedProfile.preferred_language || 'English';
+        setCurrentLanguage(userPreferredLanguage);
+      } else if (user?.extendedProfile) {
+        setProfileData(user.extendedProfile);
+        const userPreferredLanguage = user.extendedProfile.preferredLanguage || user.extendedProfile.preferred_language || 'English';
+        setCurrentLanguage(userPreferredLanguage);
+      } else {
+        // If no extended profile, try to get it from the backend
+        const profile = await userPreferencesService.getRagChatbotProfile(user?.id);
+        setProfileData(profile);
+        const userPreferredLanguage = profile.preferredLanguage || profile.preferred_language || 'English';
+        setCurrentLanguage(userPreferredLanguage);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
       setProfileData(null);
+      setCurrentLanguage('English');
     }
 
     setProfileLoading(false);
@@ -149,7 +166,7 @@ const PersonalizeButton = ({ children, contentKey }) => {
         return;
       }
 
-      // Personalize the content
+      // Personalize the content with the current language preference
       const personalized = await adaptiveTextbookService.rewriteChapterForUser(originalContent, user.id);
 
       console.log('Personalized content result length:', personalized ? personalized.length : 0); // Debug log
@@ -240,6 +257,70 @@ const PersonalizeButton = ({ children, contentKey }) => {
     }
   };
 
+  // Toggle language function
+  const toggleLanguage = async () => {
+    if (!isAuthenticated || !user) {
+      alert('Please sign in to change language preferences');
+      return;
+    }
+
+    try {
+      // Determine target language
+      const targetLanguage = currentLanguage === 'English' ? 'Urdu' : 'English';
+
+      // Update local state first to provide immediate feedback
+      setCurrentLanguage(targetLanguage);
+
+      // If content is already personalized, translate with new language preference
+      if (isPersonalized) {
+        let originalContent = '';
+
+        if (typeof children === 'string') {
+          originalContent = children;
+        } else if (typeof children === 'object' && children.props?.dangerouslySetInnerHTML?.__html) {
+          originalContent = children.props.dangerouslySetInnerHTML.__html;
+        } else if (React.isValidElement(children)) {
+          if (children.props?.dangerouslySetInnerHTML?.__html) {
+            originalContent = children.props.dangerouslySetInnerHTML.__html;
+          } else if (typeof children.props?.children === 'string') {
+            originalContent = children.props.children;
+          } else if (typeof children.props?.children === 'object' && children.props.children?.props?.dangerouslySetInnerHTML?.__html) {
+            originalContent = children.props.children.props.dangerouslySetInnerHTML.__html;
+          } else {
+            originalContent = extractTextContent(children) || '';
+          }
+        } else {
+          originalContent = extractTextContent(children) || '';
+        }
+
+        // Use direct translation to switch languages
+        const translated = await adaptiveTextbookService.translateContentDirect(originalContent, targetLanguage);
+        if (translated && translated.trim() !== '') {
+          setPersonalizedContent(translated);
+        }
+      }
+
+      // Update user preference in the backend in the background (don't block the UI)
+      // This may fail if backend is not available, but that's OK
+      userPreferencesService.updateRagChatbotProfile(user.id, {
+        preferred_language: targetLanguage
+      })
+      .then(() => {
+        // Refresh the user profile to get updated preferences
+        return refreshUser();
+      })
+      .catch(backendError => {
+        console.warn('Failed to update backend profile (this may be due to backend server not running):', backendError);
+        // Don't show an error to the user since the language toggle still works locally
+      });
+    } catch (error) {
+      console.error('Error changing language:', error);
+      alert('Error changing language. Showing original content.');
+      // Revert to previous language if there's a critical error
+      setCurrentLanguage(prev => prev === 'English' ? 'Urdu' : 'English');
+    }
+  };
+
   const handleReset = () => {
     setIsPersonalized(false);
     setPersonalizedContent('');
@@ -257,7 +338,7 @@ const PersonalizeButton = ({ children, contentKey }) => {
             borderRadius: '5px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-              <div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <button
                   onClick={isPersonalized ? handleReset : handlePersonalize}
                   disabled={isLoading}
@@ -269,8 +350,7 @@ const PersonalizeButton = ({ children, contentKey }) => {
                     borderRadius: '4px',
                     cursor: isLoading ? 'not-allowed' : 'pointer',
                     fontSize: '14px',
-                    fontWeight: '500',
-                    marginRight: '10px'
+                    fontWeight: '500'
                   }}
                 >
                   {isLoading ? 'Processing...' : isPersonalized ? 'Reset Original' : 'Personalize Content'}
@@ -280,7 +360,7 @@ const PersonalizeButton = ({ children, contentKey }) => {
                   onClick={() => setShowOptions(!showOptions)}
                   style={{
                     padding: '8px 12px',
-                    backgroundColor: '#007bff',
+                    backgroundColor: '#28a745',
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -290,15 +370,37 @@ const PersonalizeButton = ({ children, contentKey }) => {
                 >
                   {showOptions ? 'Hide Options' : 'View Profile'}
                 </button>
+
+                {/* Language Toggle Button - More Prominent */}
+                <button
+                  onClick={toggleLanguage}
+                  disabled={profileLoading}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: currentLanguage === 'Urdu' ? '#28a745' : '#dc3545', // Green for English, Red for Urdu
+                    color: 'white',
+                    border: '2px solid #fff',
+                    borderRadius: '6px',
+                    cursor: profileLoading ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    minWidth: '100px'
+                  }}
+                >
+                  {profileLoading ? '🔄' : currentLanguage === 'Urdu' ? '🇬🇧 English' : '🇵🇰 Urdu'}
+                </button>
               </div>
 
               {profileData && !profileLoading && (
-                <div style={{ fontSize: '12px', color: '#6c757d', textAlign: 'right' }}>
-                  Profile: {profileData.technicalLevel || profileData.technical_level || 'N/A'} • {profileData.explanationStyle || profileData.explanation_style || 'N/A'} • {profileData.preferredLanguage || profileData.preferred_language || 'N/A'}
+                <div style={{ fontSize: '12px', color: '#495057', padding: '4px 8px', backgroundColor: '#e9ecef', borderRadius: '3px' }}>
+                  <span title="Your current profile preferences">
+                    {currentLanguage} • {profileData.technicalLevel || profileData.technical_level || 'N/A'} • {profileData.explanationStyle || profileData.explanation_style || 'N/A'}
+                  </span>
                 </div>
               )}
               {profileLoading && (
-                <div style={{ fontSize: '12px', color: '#6c757d', textAlign: 'right' }}>
+                <div style={{ fontSize: '12px', color: '#6c757d', padding: '4px 8px', backgroundColor: '#e9ecef', borderRadius: '3px' }}>
                   Loading profile...
                 </div>
               )}
@@ -313,17 +415,22 @@ const PersonalizeButton = ({ children, contentKey }) => {
                   color: '#495057'
                 }}>
                   {profileLoading ? (
-                    <div>Loading profile data...</div>
+                    <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                      Loading profile data...
+                    </div>
                   ) : profileData ? (
-                    <>
-                      <strong>Your Preferences:</strong><br/>
-                      <strong>Technical Level:</strong> {profileData.technicalLevel || profileData.technical_level || 'Not set'}<br/>
-                      <strong>ROS Experience:</strong> {profileData.rosExperience || profileData.ros_experience || 'Not set'}<br/>
-                      <strong>Explanation Style:</strong> {profileData.explanationStyle || profileData.explanation_style || 'Not set'}<br/>
-                      <strong>Preferred Language:</strong> {profileData.preferredLanguage || profileData.preferred_language || 'Not set'}
-                    </>
+                    <div style={{ fontSize: '12px', lineHeight: '1.4' }}>
+                      <div><strong>Technical Level:</strong> {profileData.technicalLevel || profileData.technical_level || 'Not set'}</div>
+                      <div><strong>ROS Experience:</strong> {profileData.rosExperience || profileData.ros_experience || 'Not set'}</div>
+                      <div><strong>Explanation Style:</strong> {profileData.explanationStyle || profileData.explanation_style || 'Not set'}</div>
+                      <div><strong>Preferred Language:</strong> {profileData.preferredLanguage || profileData.preferred_language || 'Not set'}</div>
+                      <div><strong>Primary Setup:</strong> {profileData.primarySetup || profileData.primary_setup || 'Not set'}</div>
+                      <div><strong>Edge Hardware:</strong> {profileData.edgeHardware || profileData.edge_hardware || 'Not set'}</div>
+                    </div>
                   ) : (
-                    <div>No profile data available</div>
+                    <div style={{ fontSize: '12px', lineHeight: '1.4', color: '#6c757d' }}>
+                      No profile data available
+                    </div>
                   )}
                 </div>
               )}

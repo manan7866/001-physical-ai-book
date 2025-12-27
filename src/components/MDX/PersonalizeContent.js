@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import adaptiveTextbookService from '../../services/adaptiveTextbookService';
+import userPreferencesService from '../../services/userPreferencesService';
 
 const PersonalizeContent = ({ children, title = "Chapter" }) => {
   const { user, isAuthenticated, refreshUser, extendedProfile } = useAuthContext();
@@ -13,24 +14,40 @@ const PersonalizeContent = ({ children, title = "Chapter" }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('English');
 
   // Function to load profile data from AuthContext
   const loadProfileData = async () => {
     if (!isAuthenticated) {
       setProfileData(null);
+      setCurrentLanguage('English');
       return;
     }
 
     setProfileLoading(true);
 
-    // Use the extended profile data from AuthContext directly
-    // This data is already loaded by the AuthContext
-    if (extendedProfile) {
-      setProfileData(extendedProfile);
-    } else if (user?.extendedProfile) {
-      setProfileData(user.extendedProfile);
-    } else {
+    try {
+      // Use the extended profile data from AuthContext directly
+      // This data is already loaded by the AuthContext
+      if (extendedProfile) {
+        setProfileData(extendedProfile);
+        const userPreferredLanguage = extendedProfile.preferredLanguage || extendedProfile.preferred_language || 'English';
+        setCurrentLanguage(userPreferredLanguage);
+      } else if (user?.extendedProfile) {
+        setProfileData(user.extendedProfile);
+        const userPreferredLanguage = user.extendedProfile.preferredLanguage || user.extendedProfile.preferred_language || 'English';
+        setCurrentLanguage(userPreferredLanguage);
+      } else {
+        // If no extended profile, try to get it from the backend
+        const profile = await userPreferencesService.getRagChatbotProfile(user?.id);
+        setProfileData(profile);
+        const userPreferredLanguage = profile.preferredLanguage || profile.preferred_language || 'English';
+        setCurrentLanguage(userPreferredLanguage);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
       setProfileData(null);
+      setCurrentLanguage('English');
     }
 
     setProfileLoading(false);
@@ -104,6 +121,71 @@ const PersonalizeContent = ({ children, title = "Chapter" }) => {
     setPersonalizedContent('');
   };
 
+  // Toggle language function
+  const toggleLanguage = async () => {
+    if (!isAuthenticated || !user) {
+      alert('Please sign in to change language preferences');
+      return;
+    }
+
+    try {
+      // Determine target language
+      const targetLanguage = currentLanguage === 'English' ? 'Urdu' : 'English';
+
+      // Update user preference in the backend
+      await userPreferencesService.updateRagChatbotProfile(user.id, {
+        preferred_language: targetLanguage
+      });
+
+      // Refresh the user profile to get updated preferences
+      await refreshUser();
+
+      // Update local state
+      setCurrentLanguage(targetLanguage);
+
+      // If content is already personalized, re-personalize with new language
+      if (isPersonalized) {
+        let contentStr = '';
+
+        if (typeof children === 'string') {
+          contentStr = children;
+        } else if (React.isValidElement(children)) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = new DOMParser().parseFromString(
+            new XMLSerializer().serializeToString(
+              document.createElement('template').content.appendChild(
+                document.importNode(React.cloneElement(children).props.children, true)
+              )
+            ),
+            'text/html'
+          ).body.innerHTML || '';
+          contentStr = tempDiv.textContent || tempDiv.innerText || '';
+        } else {
+          try {
+            contentStr = typeof children === 'object' ? JSON.stringify(children, (key, value) => {
+              if (key === '_owner' || key === '_store' || key === 'ref' || key === 'key') {
+                return undefined;
+              }
+              if (value && typeof value === 'object' && value._reactInternals) {
+                return '[React Element]';
+              }
+              return value;
+            }) : String(children);
+          } catch (stringifyError) {
+            contentStr = 'Documentation content';
+          }
+        }
+
+        // Re-personalize content with new language preference
+        const personalized = await adaptiveTextbookService.rewriteChapterForUser(contentStr, user.id);
+        setPersonalizedContent(personalized);
+      }
+    } catch (error) {
+      console.error('Error changing language:', error);
+      alert('Error changing language. Please try again.');
+    }
+  };
+
   return (
     <div className="personalize-content-wrapper">
       {/* Personalization Controls */}
@@ -171,6 +253,26 @@ const PersonalizeContent = ({ children, title = "Chapter" }) => {
             >
               {showOptions ? 'Hide Profile' : 'Show Profile'}
             </button>
+
+            {/* Language Toggle Button - More Prominent */}
+            <button
+              onClick={toggleLanguage}
+              disabled={profileLoading}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: currentLanguage === 'Urdu' ? '#28a745' : '#dc3545', // Green for English, Red for Urdu
+                color: 'white',
+                border: '2px solid #fff',
+                borderRadius: '6px',
+                cursor: profileLoading ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '600',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                minWidth: '100px'
+              }}
+            >
+              {profileLoading ? '🔄' : currentLanguage === 'Urdu' ? '🇬🇧 English' : '🇵🇰 Urdu'}
+            </button>
           </div>
 
           {profileData && !profileLoading && (
@@ -182,7 +284,7 @@ const PersonalizeContent = ({ children, title = "Chapter" }) => {
               borderRadius: '3px'
             }}>
               <span title="Your current profile preferences">
-                {profileData.technicalLevel || profileData.technical_level || 'N/A'} • {profileData.explanationStyle || profileData.explanation_style || 'N/A'}
+                {currentLanguage} • {profileData.technicalLevel || profileData.technical_level || 'N/A'} • {profileData.explanationStyle || profileData.explanation_style || 'N/A'}
               </span>
             </div>
           )}

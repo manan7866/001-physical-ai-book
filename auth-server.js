@@ -425,6 +425,55 @@ app.post('/api/profile', (req, res) => {
 });
 
 
+// Translation endpoint
+app.post('/api/translate', async (req, res) => {
+  const { text, targetLang, sourceLang } = req.body;
+
+  if (!text || !targetLang) {
+    return res.status(400).json({ error: 'Text and target language are required' });
+  }
+
+  try {
+    // Use the Google Translate API key stored in environment variables
+    const API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY || "AIzaSyBWCQuPja_O0-NidMHbtmJE7DHMRn0o-TQ";
+
+    const response = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        q: text,
+        target: targetLang,
+        source: sourceLang || 'en',
+        format: 'text'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Translation API error: ${response.status} - ${await response.text()}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.data || !data.data.translations || !data.data.translations[0]) {
+      throw new Error('Invalid translation response format');
+    }
+
+    res.json({
+      translatedText: data.data.translations[0].translatedText
+    });
+  } catch (error) {
+    console.error('Translation error:', error);
+    res.status(500).json({ error: 'Translation failed', translatedText: text });
+  }
+});
+
+// Health check endpoint for translation service
+app.get('/api/translate/health', (req, res) => {
+  res.json({ status: 'OK', service: 'Translation API Proxy' });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', service: 'Simplified Auth Server', port: PORT });
